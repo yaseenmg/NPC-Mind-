@@ -1,0 +1,39 @@
+# Host-mod mods.toml template for NPC Mind library v1.2.0+
+#
+# The NPC Mind library jar itself ships NO mods.toml (it is not a mod). Copy this
+# template into YOUR host mod's src/main/resources/META-INF/mods.toml and replace
+# every "examplehost" with your own mod id. The library adds no entry here: your
+# players install YOUR mod, and the library rides inside it (jarJar) or as a
+# declared runtime dependency.
+#
+# If you list the library as a separate runtime dependency instead of bundling it,
+# add a dependency block pointing at the host mod that bundles it, e.g.:
+# [[dependencies.examplehost]]
+#     modId="npcmindhostbundle"   # some mod that ships the library jar
+#     mandatory=true
+#     versionRange="[1.2.0,)"
+#     ordering="AFTER"
+
+modLoader="javafml"
+loaderVersion="[47,)"
+license="MIT"
+
+[[mods]]
+modId="examplehost"
+version="1.0.0"
+displayName="Example Host Mod for NPC Mind"
+description='''Example host mod that embeds the NPC Mind developer library (not a mod itself).'''
+
+[[dependencies.examplehost]]
+    modId="forge"
+    mandatory=true
+    versionRange="[47,)"
+    ordering="NONE"
+    side="BOTH"
+
+[[dependencies.examplehost]]
+    modId="minecraft"
+    mandatory=true
+    versionRange="[1.20.1,1.21)"
+    ordering="NONE"
+    side="BOTH"

@@ -1,0 +1,34 @@
+# Gradle
+.gradle/
+build/
+
+# Forge runtime and generated game data
+run/
+logs/
+crash-reports/
+
+# Local configuration and secrets
+config/
+*.local.toml
+.env
+.env.*
+
+# IDE and OS files
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+.vscode/
+.DS_Store
+
+# Generated archives
+*.jar
+*.zip
+
+# javac arg-file artifacts from local compile probes
+*.args
+javac.*
+
+# Keep the Gradle wrapper
+!gradle/wrapper/gradle-wrapper.jar

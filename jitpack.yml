@@ -1,0 +1,10 @@
+# JitPack build configuration for NPC Mind.
+# The Gradle wrapper is pinned to 8.1.1 (required by ForgeGradle 6) and cannot run on
+# Java 21+, so the build JVM must be JDK 17.
+jdk:
+  - openjdk17
+
+# ForgeGradle needs the Forge Maven in addition to Maven Central; the build.gradle already
+# declares it. No extra before_install steps are required.
+install:
+  - ./gradlew --no-daemon build publishToMavenLocal

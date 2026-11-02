@@ -1,0 +1,116 @@
+plugins {
+    id 'eclipse'
+    id 'idea'
+    id 'maven-publish'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
+}
+
+// Developer-library packaging (v1.2.0+): no mod entrypoint, no mods.toml, no pack.mcmeta,
+// no run configurations. Host mods compile against this jar with fg.deobf and bundle or
+// depend on the reobfuscated jar at runtime.
+//
+// All consumer-facing versions live in gradle.properties (single source of truth):
+// bump mod_version there, keep NPCMindAPI.API_VERSION and ApiCompatibilityTest in sync.
+version = project.mod_version
+group = project.mod_group
+base { archivesName='npc-mind' }
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(17)
+    withSourcesJar()
+    withJavadocJar()
+}
+
+// Javadoc for the published library: hosts read signatures in their IDE, so the Javadoc JAR
+// must always build, even where internal sources have incomplete doc comments.
+tasks.withType(Javadoc).configureEach {
+    options.encoding = 'UTF-8'
+    options.addStringOption('Xdoclint:none', '-quiet')
+    failOnError = false
+}
+
+minecraft {
+    mappings channel:'official', version: project.minecraft_version
+}
+repositories {
+    mavenCentral()
+    // ForgeGradle resolves Minecraft/Forge artifacts from the official Forge Maven.
+    maven { url = 'https://maven.minecraftforge.net/' }
+}
+dependencies {
+    minecraft "net.minecraftforge:forge:${project.minecraft_version}-${project.forge_version}"
+    // Nullability contract annotations for the stable API surface (docs/API_STABILITY.md).
+    // compileOnly: hosts get the contract in their IDE without a transitive runtime dependency.
+    compileOnly "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
+    testImplementation "org.junit.jupiter:junit-jupiter:${project.junit_version}"
+    testImplementation "org.jetbrains:annotations:${project.jetbrains_annotations_version}"
+}
+tasks.withType(JavaCompile).configureEach { options.encoding='UTF-8' }
+tasks.test { useJUnitPlatform() }
+// ForgeGradle 6: without this the jar keeps official (non-SRG) names and crashes outside the dev environment.
+jar.finalizedBy('reobfJar')
+
+jar {
+    manifest {
+        attributes([
+            'Specification-Title'    : project.mod_name,
+            'Specification-Vendor'   : project.mod_vendor,
+            'Specification-Version'  : '1.2',
+            'Implementation-Title'   : project.mod_name,
+            'Implementation-Version' : project.mod_version,
+            'Implementation-Vendor'  : project.mod_vendor,
+            'Automatic-Module-Name'  : 'com.yaseen.npcmind'
+        ])
+    }
+}
+
+
+// Publishable library coordinate for host mods. Forge/Minecraft are declared in the POM as
+// provided dependencies: consumers supply them through their own ForgeGradle build.
+publishing {
+    publications {
+        npcMind(MavenPublication) {
+            from components.java
+            groupId = project.mod_group
+            artifactId = 'npc-mind-forge-1.20.1'
+            version = project.mod_version
+            pom {
+                name = 'NPC Mind'
+                description = 'Reusable Minecraft Forge 1.20.1 NPC intelligence library'
+                licenses {
+                    license {
+                        name = 'MIT License'
+                        url = 'https://opensource.org/license/mit'
+                        distribution = 'repo'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'yaseen'
+                        name = 'Yaseen'
+                    }
+                }
+            }
+            pom.withXml {
+                def deps = asNode().appendNode('dependencies')
+                // Minecraft/Forge: the consuming host mod's ForgeGradle build provides them.
+                def forge = deps.appendNode('dependency')
+                forge.appendNode('groupId', 'net.minecraftforge')
+                forge.appendNode('artifactId', 'forge')
+                forge.appendNode('version', "${project.minecraft_version}-${project.forge_version}")
+                forge.appendNode('scope', 'provided')
+                // Nullability annotations: compile-time only for hosts as well.
+                def jb = deps.appendNode('dependency')
+                jb.appendNode('groupId', 'org.jetbrains')
+                jb.appendNode('artifactId', 'annotations')
+                jb.appendNode('version', project.jetbrains_annotations_version)
+                jb.appendNode('scope', 'provided')
+            }
+        }
+    }
+    repositories {
+        maven {
+            name = 'localBuild'
+            url = layout.buildDirectory.dir('repo')
+        }
+    }
+}

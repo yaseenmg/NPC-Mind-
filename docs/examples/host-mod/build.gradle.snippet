@@ -1,0 +1,30 @@
+// Host-mod build.gradle snippet for consuming the NPC Mind developer library (v1.2.0+).
+// Merge the marked lines into your own ForgeGradle 6 build.gradle — do not copy the file whole.
+//
+//   plugins { id 'net.minecraftforge.gradle' version '[6.0,6.2)' }   // same as the library
+//   java { toolchain.languageVersion = JavaLanguageVersion.of(17) } // Java 17, like the library
+
+dependencies {
+    minecraft 'net.minecraftforge:forge:1.20.1-47.4.10'
+
+    // --- NPC Mind developer library -----------------------------------------
+    // Dev time: deobfuscated (official mappings) artifact, resolved from the project-local
+    // maven repo produced by `./gradlew publish` inside the NPC Mind tree, or from any
+    // repository you published it to.
+    implementation fg.deobf('com.yaseen:npc-mind-forge-1.20.1:1.3.1')
+
+    // Production, option A (recommended): bundle the library inside your mod jar so players
+    // install only your mod. jarJar picks the reobfuscated jar automatically.
+    //   jarJar.enable()
+    //   jarJar(implementation('com.yaseen:npc-mind-forge-1.20.1:1.3.1')) {
+    //       jarJar.ranged(it, '[1.3.1,1.4)')
+    //   }
+
+    // Production, option B: ship the library jar as a separate file in mods/ and document
+    // that players need both jars. No build changes required.
+    // -------------------------------------------------------------------------
+}
+
+// The library is compiled against official mappings and is reobfuscated to SRG names by its
+// own build (jar.finalizedBy('reobfJar')), exactly like any Forge 1.20.1 mod jar — bundling
+// it via jarJar keeps runtime names consistent with your host mod.
