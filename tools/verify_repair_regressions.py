@@ -540,7 +540,7 @@ require("LICENSE", (r"^MIT License", r"Copyright \(c\) 2026 Yaseen"), "root MIT 
 
 # ---------------- v1.2.0 library conversion: no @Mod entrypoint, explicit host bootstrap.
 require("src/main/java/com/yaseen/npcmind/NPCMindLibrary.java", (
-    r"public static void bootstrap\(IEventBus hostModEventBus\)",
+    r"public static (?:synchronized )?void bootstrap\(IEventBus hostModEventBus\)",
     r"ModEntities\.ENTITY_TYPES\.register\(hostModEventBus\)",
     r"ModMenus\.MENUS\.register\(hostModEventBus\)",
     r"EntityAttributeCreationEvent",

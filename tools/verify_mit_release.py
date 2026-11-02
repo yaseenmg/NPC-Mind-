@@ -72,7 +72,7 @@ if expected_version and not re.search(r'API_VERSION\s*=\s*"' + re.escape(expecte
 if (ROOT / "LICENSES").exists():
     errors.append("Stale LICENSES directory remains in the MIT release candidate")
 library_text = (ROOT / "src/main/java/com/yaseen/npcmind/NPCMindLibrary.java").read_text(encoding="utf-8") if (ROOT / "src/main/java/com/yaseen/npcmind/NPCMindLibrary.java").exists() else ""
-if not re.search(r"public static void bootstrap\(IEventBus hostModEventBus\)", library_text):
+if not re.search(r"public static (?:synchronized )?void bootstrap\(IEventBus hostModEventBus\)", library_text):
     errors.append("NPCMindLibrary bootstrap facade is missing")
 
 # v1.2.0 hardening: the library governance artifacts must exist in the release.
